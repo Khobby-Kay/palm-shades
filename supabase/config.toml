@@ -1,0 +1,8 @@
+# MOTCHIS — linked to existing Supabase project (ref from DATABASE_URL / .env)
+project_id = "lklvlmhqgzfesilpqhnv"
+
+[api]
+enabled = true
+
+[db]
+major_version = 15

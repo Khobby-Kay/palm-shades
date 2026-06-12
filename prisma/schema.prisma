@@ -1,0 +1,381 @@
+// MOTCHIS House of Beauty — Prisma schema
+// Models cover e-commerce (products/orders), services & bookings,
+// auth (Auth.js), and customer/guest profiles.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ---------- Auth.js core models ----------
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  passwordHash  String?
+  /// One of: CUSTOMER | ADMIN | STAFF  (see src/lib/types/enums.ts)
+  role          String    @default("CUSTOMER")
+  phone         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+
+  addresses     Address[]
+  children      ChildProfile[]
+  orders        Order[]
+  bookings      Booking[]
+  reviews       Review[]
+  wishlist      WishlistItem[]
+  /// Cross-device personalization (searches, external intents, interests)
+  personalization Json?
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ---------- Customer profile ----------
+
+model Address {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label     String?
+  fullName  String
+  phone     String
+  line1     String
+  line2     String?
+  city      String
+  region    String?
+  country   String   @default("Ghana")
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model ChildProfile {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  age         Int?
+  hairType    String?
+  allergies   String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  bookings    Booking[]
+}
+
+// ---------- Catalog ----------
+
+model Category {
+  id          String    @id @default(cuid())
+  /// Tiwa/Supabase categories.id (uuid)
+  supabaseId  String?   @unique
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  imageUrl    String?
+  position    Int       @default(0)
+  products    Product[]
+  createdAt   DateTime  @default(now())
+}
+
+model Product {
+  id             String           @id @default(cuid())
+  /// Tiwa/Supabase products.id (uuid)
+  supabaseId     String?          @unique
+  /// Store-wide product code (e.g. MOT-HAIR-001)
+  productCode    String           @unique
+  name           String
+  slug           String           @unique
+  description    String?
+  shortDesc      String?
+  ingredients    String?
+  usage          String?
+  ageRange       String?
+  price          Int              // base price in minor units (pesewas)
+  compareAtPrice Int?
+  currency       String           @default("GHS")
+  stock          Int              @default(0) // used when no variants
+  isFeatured     Boolean          @default(false)
+  isNew          Boolean          @default(false)
+  isBestSeller   Boolean          @default(false)
+  isActive       Boolean          @default(true)
+  rating         Float            @default(0)
+  reviewCount    Int              @default(0)
+  categoryId     String?
+  category       Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  images         ProductImage[]
+  variants       ProductVariant[]
+  orderItems     OrderItem[]
+  reviews        Review[]
+  wishlistedBy   WishlistItem[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
+
+model ProductVariant {
+  id             String      @id @default(cuid())
+  /// Tiwa/Supabase product_variants.id (uuid)
+  supabaseId     String?     @unique
+  productId      String
+  product        Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  /// Unique SKU per variant (e.g. MOT-HAIR-001-50ML)
+  sku            String      @unique
+  name           String      // e.g. "50ml", "Shade: Rose Gold"
+  price          Int?        // override; null = product base price
+  compareAtPrice Int?
+  stock          Int         @default(0)
+  imageUrl       String?
+  position       Int         @default(0)
+  isActive       Boolean     @default(true)
+  orderItems     OrderItem[]
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@index([productId])
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  alt       String?
+  position  Int     @default(0)
+}
+
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+}
+
+// ---------- Services ----------
+
+model Service {
+  id            String     @id @default(cuid())
+  name          String
+  slug          String     @unique
+  description   String?
+  shortDesc     String?
+  durationMin   Int        @default(60)
+  price         Int        // minor units
+  currency      String     @default("GHS")
+  imageUrl      String?
+  ageRange      String?
+  preparation   String?
+  isFeatured    Boolean    @default(false)
+  isActive      Boolean    @default(true)
+  bookings      Booking[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+model Booking {
+  id            String        @id @default(cuid())
+  userId        String?
+  user          User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  serviceId     String
+  service       Service       @relation(fields: [serviceId], references: [id])
+  childId       String?
+  child         ChildProfile? @relation(fields: [childId], references: [id], onDelete: SetNull)
+  guestName     String?
+  guestEmail    String?
+  guestPhone    String?
+  date          DateTime
+  startTime     String        // "10:30"
+  /// One of: IN_SALON | HOME_SERVICE
+  location      String        @default("IN_SALON")
+  address       String?
+  notes         String?
+  /// One of: PENDING | CONFIRMED | COMPLETED | CANCELLED
+  status        String        @default("PENDING")
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+// ---------- Orders ----------
+
+model Order {
+  id              String       @id @default(cuid())
+  /// Tiwa/Supabase orders.id (uuid)
+  supabaseId      String?      @unique
+  orderNumber     String       @unique
+  userId          String?
+  user            User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  guestEmail      String?
+  guestPhone      String?
+  fullName        String
+  email           String
+  phone           String
+  shippingLine1   String
+  shippingLine2   String?
+  shippingCity    String
+  shippingRegion  String?
+  shippingCountry String       @default("Ghana")
+  subtotal        Int
+  shipping        Int          @default(0)
+  discount        Int          @default(0)
+  total           Int
+  currency        String       @default("GHS")
+  /// One of: STRIPE | MOOLRE | MOBILE_MONEY | BANK_TRANSFER | CASH_ON_DELIVERY
+  paymentMethod   String       @default("STRIPE")
+  /// One of: PENDING | PAID | FAILED | REFUNDED
+  paymentStatus   String       @default("PENDING")
+  stripePaymentIntentId String?
+  /// Moolre payment link / collection reference (externalref)
+  moolreReference       String?
+  /// One of: PENDING | PROCESSING | SHIPPED | DELIVERED | CANCELLED | REFUNDED
+  status          String       @default("PENDING")
+  notes           String?
+  items           OrderItem[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model OrderItem {
+  id          String          @id @default(cuid())
+  orderId     String
+  order       Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product         @relation(fields: [productId], references: [id])
+  variantId   String?
+  variant     ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  name        String
+  variantName String?
+  productCode String?
+  variantSku  String?
+  price       Int
+  quantity    Int
+  imageUrl    String?
+}
+
+// ---------- Reviews ----------
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  authorName String
+  rating    Int
+  title     String?
+  body      String
+  isVisible Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+// ---------- Marketing ----------
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String?
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// ---------- CMS (admin-managed) ----------
+
+model GalleryItem {
+  id        String   @id @default(cuid())
+  title     String?
+  imageUrl  String
+  alt       String?
+  /// CSS grid classes e.g. "row-span-2 col-span-1"
+  span      String   @default("col-span-1")
+  /// rose | blush | ivory | gold | charcoal
+  variant   String   @default("rose")
+  position  Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model SiteBanner {
+  id        String   @id @default(cuid())
+  title     String
+  subtitle  String?
+  ctaLabel  String?
+  ctaHref   String?
+  imageUrl  String?
+  /// announcement | hero
+  placement String   @default("announcement")
+  isActive  Boolean  @default(true)
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+/// Shopping assistant chat logs (storefront bubble).
+model AssistantChatLog {
+  id                  String   @id @default(cuid())
+  sessionId           String?
+  message             String
+  reply               String?
+  intent              String?
+  matchedProductSlugs String?
+  pagePath            String?
+  userAgent           String?
+  addToCartOffered    Boolean  @default(false)
+  createdAt           DateTime @default(now())
+
+  @@index([createdAt(sort: Desc)])
+  @@index([intent])
+  @@index([sessionId])
+}
