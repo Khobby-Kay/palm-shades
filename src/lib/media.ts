@@ -36,20 +36,6 @@ export type HeroSlide = {
 
 export const heroSlides: HeroSlide[] = [
   {
-    id: "sunglasses",
-    image: brandImages.heroSunglasses,
-    imageClassName:
-      "object-cover object-[center_18%] sm:object-[center_22%] lg:object-[center_28%]",
-    alt: "Black Ghanaian woman wearing champagne gold aviator sunglasses at golden hour",
-    eyebrow: "Palm Shades · New Season",
-    heading: "Designer sunglasses",
-    highlight: "made for you.",
-    subhead:
-      "Polarized lenses and iconic silhouettes — curated for Accra's most discerning style set.",
-    primaryCta: { label: "Shop Sunglasses", href: "/shop?category=sunglasses" },
-    secondaryCta: { label: "Our Story", href: "/about" },
-  },
-  {
     id: "optical",
     image: brandImages.heroOptical,
     imageClassName:
@@ -62,6 +48,20 @@ export const heroSlides: HeroSlide[] = [
       "Prescription-ready optical frames with expert fitting and lens guidance — right here in Osu.",
     primaryCta: { label: "Shop Frames", href: "/shop?category=optical-frames" },
     secondaryCta: { label: "Book fitting", href: "/book" },
+  },
+  {
+    id: "sunglasses",
+    image: brandImages.heroSunglasses,
+    imageClassName:
+      "object-cover object-[center_18%] sm:object-[center_22%] lg:object-[center_28%]",
+    alt: "Black Ghanaian woman wearing champagne gold aviator sunglasses at golden hour",
+    eyebrow: "Palm Shades · New Season",
+    heading: "Designer sunglasses",
+    highlight: "made for you.",
+    subhead:
+      "Polarized lenses and iconic silhouettes — curated for Accra's most discerning style set.",
+    primaryCta: { label: "Shop Sunglasses", href: "/shop?category=sunglasses" },
+    secondaryCta: { label: "Our Story", href: "/about" },
   },
   {
     id: "luxury",
