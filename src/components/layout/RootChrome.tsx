@@ -7,8 +7,10 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { CartDrawer, MobileCartFab } from "@/components/layout/DeferredWidgets";
+import { FrameCompareBar } from "@/components/frames/FrameCompareBar";
 import { StorefrontChrome } from "@/components/layout/StorefrontChrome";
 import { SessionProvider } from "@/components/providers/SessionProvider";
+import { isStandaloneRoute } from "@/lib/storefront-chrome";
 import { NavigationProgress } from "@/components/layout/NavigationProgress";
 import { RoutePrefetcher } from "@/components/layout/RoutePrefetcher";
 import { ChunkRecovery } from "@/components/layout/ChunkRecovery";
@@ -43,16 +45,6 @@ const PwaRegister = isDev
       { ssr: false }
     );
 
-function isAdminOrAuthPath(pathname: string | null) {
-  if (!pathname) return false;
-  return (
-    pathname.startsWith("/admin") ||
-    pathname === "/account/signin" ||
-    pathname === "/account/signup" ||
-    pathname === "/admin-signin"
-  );
-}
-
 /** Storefront chrome only — admin uses its own Tiwa layout under /admin. */
 export function RootChrome({
   children,
@@ -64,7 +56,7 @@ export function RootChrome({
 }) {
   const pathname = usePathname();
 
-  if (isAdminOrAuthPath(pathname)) {
+  if (isStandaloneRoute(pathname)) {
     return <>{children}</>;
   }
 
@@ -85,6 +77,7 @@ export function RootChrome({
           <>
             <CartDrawer />
             <MobileCartFab />
+            <FrameCompareBar />
           </>
         }
       >

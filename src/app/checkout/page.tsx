@@ -15,7 +15,7 @@ export default function CheckoutPage() {
   const stripeEnabled = isStripeConfigured();
 
   return (
-    <main className="min-h-screen bg-blush-50/80 pb-24">
+    <div className="min-h-screen bg-blush-50/80 pb-24">
       <div className="border-b border-blush-200/80 bg-white">
         <Container className="py-8 md:py-10">
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary-700">
@@ -36,6 +36,6 @@ export default function CheckoutPage() {
           moolreEnabled={moolreEnabled}
         />
       </Container>
-    </main>
+    </div>
   );
 }

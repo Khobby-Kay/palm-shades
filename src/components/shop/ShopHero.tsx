@@ -65,6 +65,12 @@ export function ShopHero({
             >
               Book a Fitting
             </Link>
+            <Link
+              href="/frame-finder"
+              className="text-center text-sm font-medium text-primary-200 underline-offset-4 hover:text-white hover:underline sm:ml-2"
+            >
+              Not sure? Try Frame Finder
+            </Link>
           </div>
         </div>
       </Container>

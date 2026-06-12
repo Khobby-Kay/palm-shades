@@ -33,7 +33,7 @@ export function AccountNav({ userName }: { userName?: string | null }) {
         </p>
       </div>
 
-      <div className="-mx-1 flex gap-2 overflow-x-auto pb-1 scrollbar-none lg:mx-0 lg:flex-col lg:overflow-visible lg:pb-0">
+      <div className="flex gap-2 overflow-x-auto overscroll-x-contain pb-1 scrollbar-none [-webkit-overflow-scrolling:touch] lg:flex-col lg:overflow-visible lg:pb-0">
       {links.map(({ href, label, Icon, exact }) => {
         const active = exact
           ? pathname === href

@@ -75,6 +75,8 @@ export const siteConfig = {
   footerLinks: {
     Shop: [
       { href: "/shop", label: "All Eyewear" },
+      { href: "/frame-finder", label: "Frame Finder" },
+      { href: "/compare", label: "Compare Frames" },
       { href: "/shop?category=sunglasses", label: "Sunglasses" },
       { href: "/shop?category=optical-frames", label: "Optical Frames" },
       { href: "/shop?category=luxury-collection", label: "Luxury Collection" },

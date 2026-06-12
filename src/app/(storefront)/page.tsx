@@ -6,6 +6,7 @@ import { HomeCategoryStrip } from "@/components/home/HomeCategoryStrip";
 import { HomeProductSection } from "@/components/home/HomeProductSection";
 import { HomeTrustSection } from "@/components/home/HomeTrustSection";
 import { HomeShopCta } from "@/components/home/HomeShopCta";
+import { FrameFinderTeaser } from "@/components/frames/FrameFinderTeaser";
 import { SectionSkeleton } from "@/components/ui/SectionSkeleton";
 import { buildMetadata, webPageSchema } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
@@ -42,6 +43,7 @@ export default function HomePage() {
       <Suspense fallback={<SectionSkeleton rows={2} />}>
         <HomeProductSection variant="newArrivals" />
       </Suspense>
+      <FrameFinderTeaser />
       <HomeTrustSection />
       <HomeShopCta />
     </>

@@ -6,7 +6,7 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal";
 export function HomeCategoryScroll({ children }: { children: React.ReactNode }) {
   return (
     <ScrollReveal>
-      <div className="-mx-4 mt-8 overflow-x-auto px-4 scrollbar-none sm:-mx-6 sm:px-6">
+      <div className="mt-8 overflow-x-auto overscroll-x-contain px-1 scrollbar-none [-webkit-overflow-scrolling:touch]">
         {children}
       </div>
     </ScrollReveal>

@@ -14,6 +14,9 @@ import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ProductGallery } from "@/components/shop/ProductGallery";
 import { ProductActions } from "@/components/shop/ProductActions";
+import { FrameFitGuide } from "@/components/frames/FrameFitGuide";
+import { SunLensAdvisor } from "@/components/frames/SunLensAdvisor";
+import { getFrameMetaOrDefault } from "@/lib/data/frame-meta";
 import { RecordProductView } from "@/components/personalization/RecordProductView";
 import { PersonalizedRelatedProducts } from "@/components/personalization/PersonalizedRelatedProducts";
 import {
@@ -80,6 +83,8 @@ export default async function ProductPage({ params }: { params: { slug: string }
   const images = product.images.filter((url) => url?.trim()).length
     ? product.images.filter((url) => url?.trim())
     : [mainImage];
+  const frameMeta = getFrameMetaOrDefault(product.slug, product.categorySlug);
+  const isEyewear = !["accessories", "gift-sets"].includes(product.categorySlug);
 
   return (
     <>
@@ -195,6 +200,10 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
             <ProductActions product={product} imageUrl={mainImage} />
 
+            {isEyewear ? (
+              <FrameFitGuide slug={product.slug} categorySlug={product.categorySlug} />
+            ) : null}
+
             {/* Trust strip */}
             <div className="grid gap-3 rounded-3xl border border-blush-200/70 bg-blush-50/50 p-5 sm:grid-cols-3">
               {[
@@ -266,7 +275,12 @@ export default async function ProductPage({ params }: { params: { slug: string }
             <dl className="space-y-4 text-sm">
               {[
                 { k: "Category", v: category?.name ?? "—" },
-                { k: "Fit", v: "Unisex" },
+                ...(isEyewear
+                  ? [
+                      { k: "Frame style", v: frameMeta.frameStyle.replace("-", " ") },
+                      { k: "Lens width", v: `${frameMeta.lensWidthMm} mm` },
+                    ]
+                  : [{ k: "Type", v: category?.name ?? "Accessory" }]),
                 { k: "Stock", v: product.stock > 0 ? `${product.stock} in stock` : "Sold out" },
                 {
                   k: "Rating",
@@ -282,6 +296,14 @@ export default async function ProductPage({ params }: { params: { slug: string }
                 </div>
               ))}
             </dl>
+            {isEyewear &&
+            (product.categorySlug === "sunglasses" ||
+              product.categorySlug === "luxury-collection" ||
+              frameMeta.polarized) ? (
+              <div className="mt-6">
+                <SunLensAdvisor compact />
+              </div>
+            ) : null}
           </aside>
         </div>
 

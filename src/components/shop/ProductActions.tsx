@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Heart, Minus, Plus, ShoppingBag, Check, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { FrameCompareButton } from "@/components/frames/FrameCompareButton";
 import { useCart } from "@/store/cart";
 import { useWishlist } from "@/store/wishlist";
 import { cn } from "@/lib/utils";
@@ -184,28 +185,43 @@ export function ProductActions({
         </Button>
       </div>
 
-      <button
-        type="button"
-        onClick={() =>
-          toggleWish({
+      <div className="flex flex-wrap items-center gap-4">
+        <button
+          type="button"
+          onClick={() =>
+            toggleWish({
+              id: product.id,
+              slug: product.slug,
+              name: product.name,
+              price,
+              currency: product.currency,
+              imageUrl: displayImage,
+            })
+          }
+          className={cn(
+            "inline-flex items-center gap-2 text-sm transition-colors",
+            wishlistHydrated && wished
+              ? "text-primary-700"
+              : "text-charcoal-light hover:text-primary-700"
+          )}
+        >
+          <Heart className={cn("h-4 w-4", wishlistHydrated && wished ? "fill-current" : "")} />
+          {wishlistHydrated && wished ? "Saved to wishlist" : "Save to wishlist"}
+        </button>
+        <FrameCompareButton
+          item={{
             id: product.id,
             slug: product.slug,
             name: product.name,
             price,
             currency: product.currency,
+            categorySlug: product.categorySlug,
+            rating: product.rating,
             imageUrl: displayImage,
-          })
-        }
-        className={cn(
-          "inline-flex items-center gap-2 text-sm transition-colors",
-          wishlistHydrated && wished
-            ? "text-primary-700"
-            : "text-charcoal-light hover:text-primary-700"
-        )}
-      >
-        <Heart className={cn("h-4 w-4", wishlistHydrated && wished ? "fill-current" : "")} />
-        {wishlistHydrated && wished ? "Saved to wishlist" : "Save to wishlist"}
-      </button>
+          }}
+          size="sm"
+        />
+      </div>
     </div>
   );
 }

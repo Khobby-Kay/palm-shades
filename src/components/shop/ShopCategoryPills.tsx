@@ -21,7 +21,7 @@ export function ShopCategoryPills() {
   };
 
   return (
-    <div className="lg:hidden -mx-1 overflow-x-auto pb-1 scrollbar-none">
+    <div className="lg:hidden overflow-x-auto overscroll-x-contain pb-1 scrollbar-none [-webkit-overflow-scrolling:touch]">
       <div className="flex w-max gap-2 px-1">
         <Link
           href={buildHref(null)}
