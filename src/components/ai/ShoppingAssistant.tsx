@@ -5,8 +5,10 @@ import { MessageCircle, Send, X } from "lucide-react";
 import Link from "next/link";
 import { AssistantProductPicker } from "@/components/ai/AssistantProductPicker";
 import { siteConfig } from "@/lib/site";
+import { mobileFabBottomClass } from "@/lib/mobile-fab-layout";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/store/cart";
+import { useFrameCompare, frameCompareSelectors } from "@/store/frame-compare";
 import type { AssistantProduct, AssistantLink } from "@/lib/assistant/types";
 
 type ChatMessage = {
@@ -37,6 +39,9 @@ function getSessionId() {
 
 export function ShoppingAssistant() {
   const openCart = useCart((s) => s.open);
+  const compareCount = useFrameCompare(frameCompareSelectors.count);
+  const compareHydrated = useFrameCompare((s) => s.hasHydrated);
+  const fabBottom = mobileFabBottomClass(compareHydrated && compareCount > 0);
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -115,7 +120,11 @@ export function ShoppingAssistant() {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] right-4 z-[55] flex h-14 w-14 items-center justify-center rounded-full bg-primary-600 text-white shadow-lg shadow-primary-600/30 transition hover:bg-primary-700 lg:bottom-6"
+          className={cn(
+            "fixed z-[55] flex h-14 w-14 items-center justify-center rounded-full bg-primary-600 text-white shadow-lg shadow-primary-600/30 transition hover:bg-primary-700",
+            "left-4 lg:left-auto lg:right-4 lg:bottom-6",
+            fabBottom
+          )}
           aria-label="Open shopping assistant"
         >
           <MessageCircle className="h-6 w-6" />

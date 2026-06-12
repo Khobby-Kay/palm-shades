@@ -3,7 +3,9 @@
 import { usePathname } from "next/navigation";
 import { ShoppingBag } from "lucide-react";
 import { useCart, cartSelectors } from "@/store/cart";
-import { formatPrice } from "@/lib/utils";
+import { useFrameCompare, frameCompareSelectors } from "@/store/frame-compare";
+import { mobileFabBottomClass } from "@/lib/mobile-fab-layout";
+import { cn, formatPrice } from "@/lib/utils";
 
 /** Floating cart button on mobile — sits above the bottom tab bar. */
 export function MobileCartFab() {
@@ -12,6 +14,9 @@ export function MobileCartFab() {
   const count = useCart(cartSelectors.count);
   const subtotal = useCart(cartSelectors.subtotal);
   const hydrated = useCart((s) => s.hasHydrated);
+  const compareCount = useFrameCompare(frameCompareSelectors.count);
+  const compareHydrated = useFrameCompare((s) => s.hasHydrated);
+  const fabBottom = mobileFabBottomClass(compareHydrated && compareCount > 0);
 
   if (
     !hydrated ||
@@ -30,7 +35,10 @@ export function MobileCartFab() {
       type="button"
       onClick={open}
       aria-label={`Open cart, ${count} items`}
-      className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] right-4 z-40 inline-flex items-center gap-2 rounded-full bg-charcoal px-4 py-3 text-white shadow-luxe transition-transform active:scale-95 lg:hidden"
+      className={cn(
+        "fixed right-4 z-40 inline-flex items-center gap-2 rounded-full bg-charcoal px-4 py-3 text-white shadow-luxe transition-transform active:scale-95 lg:hidden",
+        fabBottom
+      )}
     >
       <span className="relative grid h-9 w-9 place-items-center rounded-full bg-primary-600">
         <ShoppingBag className="h-4 w-4" />
