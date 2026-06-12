@@ -5,8 +5,8 @@ import { MessageCircle, Send, X } from "lucide-react";
 import Link from "next/link";
 import { AssistantProductPicker } from "@/components/ai/AssistantProductPicker";
 import { siteConfig } from "@/lib/site";
-import { mobileFabBottomClass } from "@/lib/mobile-fab-layout";
 import { cn } from "@/lib/utils";
+import { useDraggableFab } from "@/hooks/useDraggableFab";
 import { useCart } from "@/store/cart";
 import { useFrameCompare, frameCompareSelectors } from "@/store/frame-compare";
 import type { AssistantProduct, AssistantLink } from "@/lib/assistant/types";
@@ -19,6 +19,8 @@ type ChatMessage = {
 };
 
 const SESSION_KEY = "palm-shades-assistant-session";
+const FAB_POS_KEY = "palm-shades-assistant-fab-pos";
+const FAB_SIZE = 56;
 
 function getSessionId() {
   if (typeof window === "undefined") return undefined;
@@ -37,11 +39,44 @@ function getSessionId() {
   }
 }
 
+function mobileBottomReserve(hasCompareTray: boolean): number {
+  const nav = 64;
+  const compare = hasCompareTray ? 56 : 0;
+  return nav + compare + 16;
+}
+
 export function ShoppingAssistant() {
   const openCart = useCart((s) => s.open);
   const compareCount = useFrameCompare(frameCompareSelectors.count);
   const compareHydrated = useFrameCompare((s) => s.hasHydrated);
-  const fabBottom = mobileFabBottomClass(compareHydrated && compareCount > 0);
+  const hasCompareTray = compareHydrated && compareCount > 0;
+  const [bottomReserve, setBottomReserve] = useState(72);
+
+  useEffect(() => {
+    const update = () => {
+      const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
+      setBottomReserve(isDesktop ? 16 : mobileBottomReserve(hasCompareTray));
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, [hasCompareTray]);
+
+  const {
+    position,
+    ready,
+    isDragging,
+    onPointerDown,
+    onPointerMove,
+    onPointerUp,
+    onPointerCancel,
+    dragMovedRef,
+  } = useDraggableFab({
+    storageKey: FAB_POS_KEY,
+    size: FAB_SIZE,
+    bottomReserve,
+  });
+
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -114,20 +149,33 @@ export function ShoppingAssistant() {
     }
   }, [input, loading]);
 
+  const handleFabPointerUp = (e: React.PointerEvent<HTMLButtonElement>) => {
+    const wasDrag = dragMovedRef.current;
+    onPointerUp(e);
+    dragMovedRef.current = false;
+    if (!wasDrag) setOpen(true);
+  };
+
   return (
     <>
-      {!open ? (
+      {!open && ready && position ? (
         <button
           type="button"
-          onClick={() => setOpen(true)}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={handleFabPointerUp}
+          onPointerCancel={onPointerCancel}
+          style={{ left: position.x, top: position.y, width: FAB_SIZE, height: FAB_SIZE }}
           className={cn(
-            "fixed z-[55] flex h-14 w-14 items-center justify-center rounded-full bg-primary-600 text-white shadow-lg shadow-primary-600/30 transition hover:bg-primary-700",
-            "left-4 lg:left-auto lg:right-4 lg:bottom-6",
-            fabBottom
+            "fixed z-[55] touch-none select-none rounded-full bg-primary-600 text-white shadow-lg shadow-primary-600/30 transition-shadow",
+            "flex items-center justify-center hover:bg-primary-700",
+            isDragging && "scale-105 cursor-grabbing shadow-xl ring-2 ring-primary-300/50",
+            !isDragging && "cursor-grab"
           )}
-          aria-label="Open shopping assistant"
+          aria-label="Open shopping assistant. Drag to move."
+          title="Drag to reposition"
         >
-          <MessageCircle className="h-6 w-6" />
+          <MessageCircle className="pointer-events-none h-6 w-6" />
         </button>
       ) : null}
 
