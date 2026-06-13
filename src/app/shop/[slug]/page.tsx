@@ -16,7 +16,9 @@ import { ProductGallery } from "@/components/shop/ProductGallery";
 import { ProductActions } from "@/components/shop/ProductActions";
 import { FrameFitGuide } from "@/components/frames/FrameFitGuide";
 import { SunLensAdvisor } from "@/components/frames/SunLensAdvisor";
+import { WhatsAppStylistCta } from "@/components/shop/WhatsAppStylistCta";
 import { getFrameMetaOrDefault } from "@/lib/data/frame-meta";
+import { getProductImage, brandImages } from "@/lib/media";
 import { RecordProductView } from "@/components/personalization/RecordProductView";
 import { PersonalizedRelatedProducts } from "@/components/personalization/PersonalizedRelatedProducts";
 import {
@@ -25,7 +27,6 @@ import {
 } from "@/lib/catalog";
 import { categories } from "@/lib/data/categories";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { getProductImage, brandImages } from "@/lib/media";
 import {
   breadcrumbSchema,
   buildMetadata,
@@ -203,6 +204,8 @@ export default async function ProductPage({ params }: { params: { slug: string }
             {isEyewear ? (
               <FrameFitGuide slug={product.slug} categorySlug={product.categorySlug} />
             ) : null}
+
+            <WhatsAppStylistCta productName={product.name} slug={product.slug} />
 
             {/* Trust strip */}
             <div className="grid gap-3 rounded-3xl border border-blush-200/70 bg-blush-50/50 p-5 sm:grid-cols-3">

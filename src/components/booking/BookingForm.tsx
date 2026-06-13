@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Field, TextArea } from "@/components/ui/Field";
 import { DateTimePicker } from "@/components/booking/DateTimePicker";
+import { BookingWhatsAppConfirm } from "@/components/booking/BookingWhatsAppConfirm";
 import { TIME_SLOTS } from "@/lib/validators/booking";
 import type { BookingLocation } from "@/lib/types/enums";
 import { formatPrice, cn } from "@/lib/utils";
@@ -34,6 +35,8 @@ export function BookingForm({ service }: Props) {
   const [location, setLocation] = useState<BookingLocation>("IN_SALON");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
+  const [guestName, setGuestName] = useState(user?.name ?? "");
+  const [guestPhone, setGuestPhone] = useState("");
   const [isPending, startTransition] = useTransition();
 
   const dateLabel = useMemo(() => {
@@ -252,6 +255,7 @@ export function BookingForm({ service }: Props) {
             defaultValue={user?.name ?? undefined}
             error={errors.guestName}
             required
+            onChange={(e) => setGuestName(e.target.value)}
           />
           <Field
             label="Phone"
@@ -260,6 +264,7 @@ export function BookingForm({ service }: Props) {
             placeholder="024 214 9489"
             error={errors.guestPhone}
             required
+            onChange={(e) => setGuestPhone(e.target.value)}
           />
           <Field
             containerClassName="sm:col-span-2"
@@ -288,6 +293,13 @@ export function BookingForm({ service }: Props) {
       ) : null}
 
       <div className="space-y-3 lg:pb-0">
+        <BookingWhatsAppConfirm
+          serviceName={service.name}
+          dateLabel={dateLabel}
+          startTime={startTime}
+          guestName={guestName}
+          guestPhone={guestPhone}
+        />
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-blush-200/90 bg-white/95 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] backdrop-blur-md lg:static lg:z-auto lg:border-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
           <Button
             type="submit"

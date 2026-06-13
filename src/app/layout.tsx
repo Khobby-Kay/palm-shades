@@ -3,7 +3,7 @@ import { Cormorant_Garamond, Outfit } from "next/font/google";
 import { Suspense } from "react";
 import "./globals.css";
 
-import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
+import { BoutiqueStatusBar } from "@/components/boutique/BoutiqueStatusBar";
 import { RootChrome } from "@/components/layout/RootChrome";
 import { GlobalJsonLd } from "@/components/seo/GlobalJsonLd";
 import { buildMetadata } from "@/lib/seo";
@@ -113,7 +113,7 @@ export default function RootLayout({
             <Suspense
               fallback={<div className="h-9 bg-gradient-brand" aria-hidden />}
             >
-              <AnnouncementBar />
+              <BoutiqueStatusBar />
             </Suspense>
           }
         >

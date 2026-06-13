@@ -8,6 +8,7 @@ import { SectionBlockHeader } from "@/components/home/SectionBlockHeader";
 import { SmartImage } from "@/components/ui/SmartImage";
 import { ServiceCard } from "@/components/services/ServiceCard";
 import { BookingForm } from "@/components/booking/BookingForm";
+import { QuickBookStrip } from "@/components/booking/QuickBookStrip";
 import { WelcomeOfferBanner } from "@/components/booking/WelcomeOfferBanner";
 import { services } from "@/lib/data/services";
 import { getServiceImage } from "@/lib/media";
@@ -64,6 +65,7 @@ export default function BookPage({
             />
           </Container>
         </section>
+        <QuickBookStrip />
         <Container className="pb-12 pt-6 md:py-16">
           {welcomeOffer ? <WelcomeOfferBanner /> : null}
           <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 lg:gap-6">
